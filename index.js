@@ -21,6 +21,13 @@ async function run() {
     try {
         const services = client.db('serviceReview').collection('services');
 
+        app.get('/limitservices', async (req, res) => {
+            const query = {};
+            const cursor = services.find({});
+            const result = await cursor.limit(3).toArray();
+            res.send(result);
+        })
+
         app.get('/services', async (req, res) => {
             const query = {};
             const cursor = services.find({});
