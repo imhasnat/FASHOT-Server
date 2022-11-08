@@ -44,6 +44,12 @@ async function run() {
             res.send(service);
         })
 
+        app.post('/addservice', async (req, res) => {
+            const service = req.body;
+            const result = await services.insertOne(service);
+            res.send(result);
+        })
+
         app.get('/review/:id', async (req, res) => {
             const id = req.params.id;
             const query = { service: id };
