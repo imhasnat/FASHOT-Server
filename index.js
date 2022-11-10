@@ -53,10 +53,13 @@ async function run() {
         })
 
         app.get('/services', async (req, res) => {
+            const page = parseInt(req.query.page);
+            const size = parseInt(req.query.size);
             const query = {};
-            const cursor = services.find({});
-            const result = await cursor.toArray();
-            res.send(result);
+            const cursor = services.find(query);
+            const result = await cursor.skip(page * size).limit(size).toArray();
+            const count = await services.estimatedDocumentCount();
+            res.send({ count, result });
         })
 
         app.get('/detailservice/:id', async (req, res) => {
