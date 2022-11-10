@@ -83,8 +83,6 @@ async function run() {
 
         app.get('/myreview', verifyJWT, async (req, res) => {
             const decoded = req.decoded;
-            console.log('dec', decoded);
-            const email = req.query.email;
 
             if (decoded.email !== req.query.email) {
                 res.status(403).send({ message: 'Forbidden Access' })
