@@ -24,7 +24,7 @@ async function run() {
 
         app.get('/limitservices', async (req, res) => {
             const query = {};
-            const cursor = services.find({});
+            const cursor = services.find({}).sort({ _id: -1 });
             const result = await cursor.limit(3).toArray();
             res.send(result);
         })
@@ -78,7 +78,6 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
             const data = req.body;
-            console.log(id, data);
             const updatedDoc = {
                 $set: {
                     comment: data.updateComment,
