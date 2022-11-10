@@ -14,6 +14,22 @@ app.get('/', (req, res) => {
     res.send('Server is running');
 })
 
+function verifyJWT(req, res, next) {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(401).send({ message: 'Unauthorized access' });
+    }
+    const token = authHeader.split(' ')[1];
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+        if (err) {
+            return res.status(403).send({ message: 'Forbidden access' });
+        }
+        req.decoded = decoded;
+        next();
+    })
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.ovbuiyj.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -62,13 +78,23 @@ async function run() {
             const query = { service: id };
             const cursor = reviews.find(query).sort({ time: -1 });
             const result = await cursor.toArray();
-            //console.log(result);
             res.send(result);
         })
 
-        app.get('/myreview/:email', async (req, res) => {
-            const email = req.params.email;
-            const query = { email: email }
+        app.get('/myreview', verifyJWT, async (req, res) => {
+            const decoded = req.decoded;
+            console.log('dec', decoded);
+            const email = req.query.email;
+
+            if (decoded.email !== req.query.email) {
+                res.status(403).send({ message: 'Forbidden Access' })
+            }
+            let query = {};
+            if (req.query.email) {
+                query = {
+                    email: req.query.email
+                }
+            }
             const cursor = reviews.find(query)
             const result = await cursor.toArray();
             res.send(result);
